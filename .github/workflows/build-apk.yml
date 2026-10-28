@@ -20,15 +20,28 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.7"
+          gradle-version: "8.9"
+
+      - name: Prepare Android folders
+        run: |
+          mkdir -p app/src/main/java/com/drewblox/classic
+          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/assets/world
+          cp AndroidManifest.xml app/src/main/AndroidManifest.xml
+          cp MainActivity.java app/src/main/java/com/drewblox/classic/
+          cp styles.xml app/src/main/res/values/
+          cp index.html world.js app/src/main/assets/world/
+          cp build.gradle app/build.gradle
+          printf '// DrewBlox root project\n' > build.gradle
+          printf '\ninclude(":app")\n' >> settings.gradle
 
       - name: Build APK
-        run: gradle assembleDebug
+        run: gradle :app:assembleDebug
 
-      - name: Save APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: DrewBlox-APK
-          path: "**/build/outputs/apk/debug/*.apk"
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           
